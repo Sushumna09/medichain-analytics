@@ -8,6 +8,8 @@ Built with **MySQL 8.0**. All logic — schema, seed data, KPIs, anomaly
 detection, and risk scoring — is expressed in standard SQL.
 A lightweight HTML dashboard (`dashboard.html`) visualizes the results.
 
+> **Live demo:** [https://raw.githack.com/Sushumna09/medichain-analytics/main/dashboard.html](https://raw.githack.com/Sushumna09/medichain-analytics/main/dashboard.html)
+
 ---
 
 ## Table of Contents
@@ -209,6 +211,10 @@ JavaScript data. To regenerate them, run the corresponding SQL against your
 own database and update the `data` object at the bottom of the file.
 
 ### Viewing options
+
+- **Instant online preview (no setup).** Open the file rendered as a live page:
+
+  https://raw.githack.com/Sushumna09/medichain-analytics/main/dashboard.html
 
 - **Locally.** Just open the file in a browser:
 
