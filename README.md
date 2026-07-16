@@ -1,13 +1,11 @@
 # MediChain Analytics
 
-An SQL analytics project for a fictional multi-branch hospital chain.
-The project models the complete revenue cycle of a hospital — from
-patient registration and appointments, through admissions and
-prescriptions, all the way to billing, insurance claims, and payments —
-and exposes it through analytical SQL queries.
+An SQL analytics project modeling the operations of a fictional multi-branch
+hospital chain — from patient registration and appointments, through admissions
+and prescriptions, to billing, insurance claims, and payments.
 
-Written in **MySQL 8.0** using only standard SQL (portable to
-PostgreSQL and SQLite with minor tweaks).
+Built with **MySQL 8.0**. All logic — schema, seed data, KPIs, anomaly
+detection, and risk scoring — is expressed in standard SQL.
 
 ---
 
@@ -29,36 +27,29 @@ PostgreSQL and SQLite with minor tweaks).
 
 ## Overview
 
-MediChain Analytics simulates the day-to-day operations of a hospital
-chain with **5 branches** across India (Hyderabad, Bengaluru, Mumbai,
-Delhi, Chennai). It ships with:
+MediChain is a hospital chain with five branches across India — Hyderabad,
+Bengaluru, Mumbai, Delhi, and Chennai. This repository defines its analytical
+back-end: a normalized 13-table schema, roughly 500 rows of seed data spanning
+2024–2025, and a suite of SQL scripts that compute operational KPIs and
+surface data-quality anomalies.
 
-- A **normalized 13-table schema** covering patients, staff, rooms,
-  departments, appointments, admissions, prescriptions, medicines,
-  insurance policies, bills, claims, and payments.
-- **~500 rows of seed data** spread across 2024 – 2025, including
-  intentionally seeded fraud patterns and readmission events.
-- **~60 analytical queries** organized as themed script files.
-- Two dedicated modules that go beyond standard reporting: **Fraud &
-  Anomaly Detection** and **Patient Readmission Risk Scoring**.
-
-The goal is to serve as an end-to-end example of a real analytical
-workload — schema design, ETL-like data loading, KPI reporting,
-anomaly detection, and simple rule-based modeling — all expressed
-in SQL.
+The scripts are organized so that the first ten cover core SQL patterns
+(joins, aggregation, subqueries, CTEs, window functions, and pivoting),
+while the final three focus on business-level analytics — KPI dashboards,
+fraud & anomaly detection, and rule-based patient risk scoring.
 
 ---
 
 ## Features
 
-- Multi-branch hospital chain modeling with per-branch KPIs
+- Multi-branch chain modeling with per-branch KPIs
 - Full insurance workflow: policy → claim → adjudication → payment
-- Self-referential staff hierarchy for org-chart queries
-- Handles currently-admitted patients via `NULL` discharge dates
-- 30-day readmission detection using window functions
-- Statistical anomaly detection (over-prescribers, duplicate bills,
-  ghost bills, duplicate claims, overlapping admissions)
+- Self-referential staff hierarchy for org-chart traversal
+- 30-day readmission detection using `LAG` on admissions
+- Statistical anomaly detection — over-prescribers, duplicate bills,
+  ghost bills, duplicate claims, overlapping admissions
 - Rule-based patient risk scoring implemented entirely in SQL
+- Uses `NULL`-safe patterns for currently-admitted patients and unmatched joins
 
 ---
 
@@ -67,10 +58,10 @@ in SQL.
 | Component | Version |
 |---|---|
 | Database | MySQL 8.0+ |
-| SQL features used | CTEs, recursive CTEs, window functions, `CASE`, date/time functions |
-| Tools needed | Any MySQL client (`mysql` CLI, MySQL Workbench, DBeaver, TablePlus) |
+| SQL features | CTEs, recursive CTEs, window functions, `CASE`, date/time functions |
+| Client tools | Any MySQL client — `mysql` CLI, MySQL Workbench, DBeaver, TablePlus |
 
-No application code, no ORM — the project is 100% SQL.
+The project contains no application code and no ORM. It is 100% SQL.
 
 ---
 
@@ -112,12 +103,12 @@ No application code, no ORM — the project is 100% SQL.
 | `rooms` | Inpatient rooms with type and daily charge |
 | `patients` | Patient demographics and chronic-condition flag |
 | `insurance_companies` | Master list of insurers |
-| `patient_insurance_policies` | Which patient has which policy |
-| `appointments` | Outpatient visits with status `Attended` / `No-Show` / `Cancelled` |
+| `patient_insurance_policies` | Association between patients and insurers |
+| `appointments` | Outpatient visits, status `Attended` / `No-Show` / `Cancelled` |
 | `admissions` | Inpatient stays; `discharge_date` is `NULL` while admitted |
 | `medicines` | Medicine catalog |
 | `prescriptions` | Linked to either an appointment or an admission |
-| `bills` | Bill header per appointment / admission |
+| `bills` | Bill header per appointment or admission |
 | `claims` | Insurance claim per bill, with approval workflow |
 | `payments` | Payments against bills (cash, card, UPI, insurance) |
 
@@ -130,7 +121,7 @@ Full DDL, foreign keys, and indexes are defined in `01_schema.sql`.
 ```
 medichain-analytics/
 ├── 01_schema.sql                      # Table definitions, PK/FK, indexes
-├── 02_seed_data.sql                   # ~500 rows of realistic sample data
+├── 02_seed_data.sql                   # ~500 rows of sample data
 ├── 03_basics.sql                      # SELECT / WHERE / ORDER BY / DISTINCT / LIMIT
 ├── 04_joins.sql                       # INNER / LEFT / RIGHT / SELF / CROSS joins
 ├── 05_aggregations.sql                # GROUP BY, HAVING, aggregate functions
@@ -142,7 +133,6 @@ medichain-analytics/
 ├── 11_kpi_dashboard.sql               # 15 hospital operations KPIs
 ├── 12_fraud_detection.sql             # Anomaly detection queries
 ├── 13_readmission_risk_scoring.sql    # Rule-based patient risk score in SQL
-├── 14_interview_questions.sql         # 30 SQL problems with solutions
 └── README.md
 ```
 
@@ -152,19 +142,19 @@ medichain-analytics/
 
 ### Prerequisites
 
-- MySQL 8.0 or newer installed and running
+- MySQL 8.0 or newer
 - A user with permission to create a database
 
 ### Installation
 
-1. Clone the repository:
+1. Clone the repository.
 
    ```bash
    git clone https://github.com/Sushumna09/medichain-analytics.git
    cd medichain-analytics
    ```
 
-2. Connect to MySQL and create the database:
+2. Create the database and load the schema and data.
 
    ```bash
    mysql -u root -p
@@ -173,23 +163,21 @@ medichain-analytics/
    ```sql
    CREATE DATABASE medichain;
    USE medichain;
-   ```
 
-3. Load the schema and data:
-
-   ```sql
    SOURCE 01_schema.sql;
    SOURCE 02_seed_data.sql;
    ```
 
-4. Verify the load:
+3. Verify the load.
 
    ```sql
-   SELECT COUNT(*) FROM patients;      -- expect 40
-   SELECT COUNT(*) FROM admissions;    -- expect 35
+   SELECT COUNT(*) FROM patients;      -- 40
+   SELECT COUNT(*) FROM admissions;    -- 35
    ```
 
 ### Running a query file
+
+From inside the MySQL prompt:
 
 ```sql
 SOURCE 08_window_functions.sql;
@@ -205,72 +193,67 @@ mysql -u root -p medichain < 11_kpi_dashboard.sql
 
 ## Workflow
 
-The data flows through the schema in the following order:
+Data flows through the schema in the following order.
 
-1. **Registration** — a patient record is created in `patients`.
-2. **Insurance (optional)** — a `patient_insurance_policy` row links the
-   patient to an insurer.
-3. **Outpatient visit** — an `appointment` is created and (if attended)
-   may generate `prescriptions` and a `bill`.
-4. **Inpatient stay** — an `admission` is created, a room is assigned,
-   the attending doctor may write `prescriptions`, and on discharge a
-   `bill` is generated.
-5. **Billing** — every `bill` records a total amount.
-6. **Insurance claim** — if the patient has a policy, a `claim` is
-   filed against the bill and adjudicated (`Approved` / `Rejected` /
-   `Pending`).
-7. **Payment** — one or more `payments` are made against the bill,
-   possibly via multiple methods (insurance + cash top-up, for example).
+1. **Registration.** A patient record is created in `patients`.
+2. **Insurance (optional).** A `patient_insurance_policy` row links the patient
+   to an insurer with a coverage limit and validity window.
+3. **Outpatient visit.** An `appointment` is created and, if attended, may
+   generate `prescriptions` and a `bill`.
+4. **Inpatient stay.** An `admission` is created, a room is assigned, the
+   attending doctor may write `prescriptions`, and on discharge a `bill` is
+   generated.
+5. **Billing.** Every `bill` records the total amount and its payment status.
+6. **Insurance claim.** If the patient has an active policy, a `claim` is
+   filed against the bill and adjudicated (`Approved` / `Rejected` / `Pending`).
+7. **Payment.** One or more `payments` are recorded against the bill, possibly
+   via multiple methods (for example insurance settlement plus a cash top-up).
 
-The analytical query files traverse these entities to produce KPIs,
-detect anomalies, and score patient risk.
+The analytical scripts traverse these entities to compute KPIs, flag
+anomalies, and score patient risk.
 
 ---
 
 ## Modules
 
-The 14 SQL files are organized into three logical groups.
+The scripts are grouped as follows.
 
 ### Foundations — `01` through `10`
 
-Progressively cover core SQL: schema design, seed data, and every major
-query construct (joins, aggregation, subqueries, CTEs, window
-functions, CASE, date functions, pivot patterns).
+Cover schema design, seed data, and every major query construct: joins,
+aggregation, subqueries, CTEs (including recursive), window functions, `CASE`
+expressions, date/time arithmetic, and pivot patterns.
 
 ### Business KPIs — `11_kpi_dashboard.sql`
 
-Fifteen queries that compute the operational KPIs a hospital chain
-would put on an executive dashboard:
+Fifteen operational KPIs that a hospital chain would typically surface on an
+executive dashboard:
 
-- Revenue per hospital, per bed, per department
+- Revenue per hospital, per bed, and per department
 - Bed occupancy rate
 - Average length of stay
 - 30-day readmission rate
 - No-show rate
-- Claim rejection rate
-- Doctor productivity
+- Claim rejection rate per insurer
+- Doctor productivity leaderboard
 - Repeat-patient rate
 - New-patient acquisition trend
 
-### Advanced Modules — `12` and `13`
+### Fraud & Anomaly Detection — `12_fraud_detection.sql`
 
-- **`12_fraud_detection.sql`** — ten queries that flag data anomalies:
-  over-prescribing doctors (using per-specialization averages),
-  duplicate admission bills, ghost bills with no linked service,
-  duplicate claim submissions, impossible stay lengths, over-approved
-  claims, doctor-shopping patients, and overlapping admissions.
+Ten queries that flag data anomalies using a mix of statistical thresholds
+and integrity checks. Findings include over-prescribing doctors (relative to
+per-specialization averages), duplicate admission bills, ghost bills with no
+linked service, duplicate claim submissions, impossible stay lengths, over-
+approved claims, doctor-shopping patients, and overlapping admissions.
 
-- **`13_readmission_risk_scoring.sql`** — a pure-SQL rule-based scoring
-  model that assigns each patient a `risk_score` between `0` and `100`
-  based on age, chronic conditions, prior admissions, average length
-  of stay, ICU history, and recency of last visit. Patients are then
-  bucketed into `HIGH`, `MEDIUM`, or `LOW` risk tiers with a suggested
-  follow-up action.
+### Patient Readmission Risk Scoring — `13_readmission_risk_scoring.sql`
 
-### Practice — `14_interview_questions.sql`
-
-Thirty SQL problems with worked solutions, grouped by difficulty and
-topic. Useful for revision.
+A rule-based scoring model implemented in SQL that assigns each patient a
+`risk_score` between `0` and `100` based on age, chronic conditions, prior
+admissions, average length of stay, ICU history, and recency of the last
+visit. Patients are bucketed into `HIGH`, `MEDIUM`, or `LOW` risk tiers, each
+with a suggested follow-up action.
 
 ---
 
@@ -313,7 +296,7 @@ SELECT
 FROM admissions;
 ```
 
-**Over-prescribing doctors (Fraud Anomaly 1):**
+**Over-prescribing doctors (Anomaly 1):**
 
 ```sql
 WITH doc_qty AS (
@@ -339,22 +322,21 @@ WHERE dq.units > 2 * sa.avg_units;
 
 ## Portability
 
-The queries target MySQL 8.0 but are ~95% portable. Adjustments needed
-for other engines:
+The queries target MySQL 8.0 but are largely portable. The syntactic
+adjustments needed for other engines are:
 
 | Feature | MySQL | PostgreSQL | SQLite |
 |---|---|---|---|
 | Auto-increment PK | `AUTO_INCREMENT` | `SERIAL` / `GENERATED` | `AUTOINCREMENT` |
 | Format a date | `DATE_FORMAT(d, '%Y-%m')` | `TO_CHAR(d, 'YYYY-MM')` | `strftime('%Y-%m', d)` |
 | Date arithmetic | `DATE_SUB(d, INTERVAL 1 MONTH)` | `d - INTERVAL '1 month'` | `date(d, '-1 month')` |
-| Boolean shortcut inside `SUM` | `SUM(status='X')` | `SUM(CASE WHEN status='X' THEN 1 ELSE 0 END)` | same as Postgres |
+| Boolean shortcut in `SUM` | `SUM(status='X')` | `SUM(CASE WHEN status='X' THEN 1 ELSE 0 END)` | same as Postgres |
 
-All CTEs, recursive CTEs, and window functions used are standard
-SQL:2003+ and work in all three engines.
+All CTEs, recursive CTEs, and window functions used are standard SQL:2003+
+and work across the three engines above.
 
 ---
 
 ## License
 
-Released under the MIT License. See `LICENSE` if present, otherwise
-free to use for learning and demonstration purposes.
+Released under the MIT License.
