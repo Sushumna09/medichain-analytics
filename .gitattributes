@@ -1,0 +1,7 @@
+# ---------------------------------------------------------------------------
+# Tell GitHub Linguist to include SQL in the repo's language stats.
+# By default, Linguist categorises .sql as "data" and hides it from the
+# language bar shown on the repo homepage; this line overrides that so
+# SQL (which is the bulk of this project) is displayed correctly.
+# ---------------------------------------------------------------------------
+*.sql linguist-detectable=true
