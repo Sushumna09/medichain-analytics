@@ -6,6 +6,7 @@ and prescriptions, to billing, insurance claims, and payments.
 
 Built with **MySQL 8.0**. All logic — schema, seed data, KPIs, anomaly
 detection, and risk scoring — is expressed in standard SQL.
+A lightweight HTML dashboard (`dashboard.html`) visualizes the results.
 
 ---
 
@@ -17,6 +18,7 @@ detection, and risk scoring — is expressed in standard SQL.
 - [Database Schema](#database-schema)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
+- [Dashboard](#dashboard)
 - [Workflow](#workflow)
 - [Modules](#modules)
 - [Example Queries](#example-queries)
@@ -38,6 +40,9 @@ The scripts are organized so that the first ten cover core SQL patterns
 while the final three focus on business-level analytics — KPI dashboards,
 fraud & anomaly detection, and rule-based patient risk scoring.
 
+A companion **HTML dashboard** renders the key results as charts and tables
+so the queries can be reviewed visually without connecting to a database.
+
 ---
 
 ## Features
@@ -49,7 +54,7 @@ fraud & anomaly detection, and rule-based patient risk scoring.
 - Statistical anomaly detection — over-prescribers, duplicate bills,
   ghost bills, duplicate claims, overlapping admissions
 - Rule-based patient risk scoring implemented entirely in SQL
-- Uses `NULL`-safe patterns for currently-admitted patients and unmatched joins
+- Static HTML dashboard (Chart.js, no build step) to visualize results
 
 ---
 
@@ -60,8 +65,10 @@ fraud & anomaly detection, and rule-based patient risk scoring.
 | Database | MySQL 8.0+ |
 | SQL features | CTEs, recursive CTEs, window functions, `CASE`, date/time functions |
 | Client tools | Any MySQL client — `mysql` CLI, MySQL Workbench, DBeaver, TablePlus |
+| Dashboard | HTML + vanilla JavaScript + [Chart.js](https://www.chartjs.org/) (via CDN) |
 
-The project contains no application code and no ORM. It is 100% SQL.
+The project contains no application code and no ORM. All analytics are in SQL;
+the dashboard is a single self-contained HTML file.
 
 ---
 
@@ -133,6 +140,7 @@ medichain-analytics/
 ├── 11_kpi_dashboard.sql               # 15 hospital operations KPIs
 ├── 12_fraud_detection.sql             # Anomaly detection queries
 ├── 13_readmission_risk_scoring.sql    # Rule-based patient risk score in SQL
+├── dashboard.html                     # Chart.js visualization of key KPIs
 └── README.md
 ```
 
@@ -188,6 +196,47 @@ Or from the shell:
 ```bash
 mysql -u root -p medichain < 11_kpi_dashboard.sql
 ```
+
+---
+
+## Dashboard
+
+`dashboard.html` is a single self-contained page that visualizes the main
+results computed by the SQL scripts. It uses **Chart.js** (loaded from a CDN)
+and requires no build step and no live database connection — the numbers it
+displays are the pre-computed outputs of the queries, embedded inline as
+JavaScript data. To regenerate them, run the corresponding SQL against your
+own database and update the `data` object at the bottom of the file.
+
+### Viewing options
+
+- **Locally.** Just open the file in a browser:
+
+  ```bash
+  open dashboard.html            # macOS
+  xdg-open dashboard.html        # Linux
+  start dashboard.html           # Windows
+  ```
+
+- **Live on the web via GitHub Pages.**
+  1. Go to the repository → **Settings** → **Pages**.
+  2. Under *Source*, select **Deploy from a branch** → branch `main` → folder `/ (root)` → **Save**.
+  3. After a minute the site is live at
+     `https://sushumna09.github.io/medichain-analytics/dashboard.html`.
+
+### What the dashboard shows
+
+- **Overview** — six KPI cards (revenue, patients, admissions, doctors,
+  readmission rate, fraud alerts).
+- **Revenue analytics** — revenue by hospital and revenue per bed.
+- **Operations** — monthly admissions trend and top diagnoses by revenue.
+- **Quality & compliance** — appointment outcomes and claim status by insurer.
+- **Fraud & anomaly alerts** — a table of the incidents detected by
+  `12_fraud_detection.sql`.
+- **High-risk patients** — top patients by readmission risk score from
+  `13_readmission_risk_scoring.sql`.
+
+Each chart cites the SQL file and query number it was derived from.
 
 ---
 
