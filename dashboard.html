@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediChain Analytics — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --card: #ffffff;
+      --border: #e6ebf1;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #0ea5e9;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --violet: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 32px 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* ---- Header ---- */
+    header { margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
+    .brand h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    .brand .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .snapshot { font-size: 12px; color: var(--muted); background: white; border: 1px solid var(--border); padding: 6px 12px; border-radius: 999px; }
+
+    /* ---- Section header ---- */
+    .section { margin-top: 36px; }
+    .section-title {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--muted); margin-bottom: 14px;
+    }
+
+    /* ---- KPI cards ---- */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06); }
+    .kpi-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .kpi-value { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+    .kpi-value.danger { color: var(--danger); }
+    .kpi-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* ---- Chart grid ---- */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px 12px;
+    }
+    .chart-title { font-size: 14px; font-weight: 600; }
+    .chart-source { font-size: 11px; color: #94a3b8; margin-top: 2px; margin-bottom: 14px; }
+    .chart-canvas { position: relative; height: 260px; }
+
+    /* ---- Table ---- */
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 20px;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left; padding: 14px 8px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted); font-weight: 500;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    td { padding: 14px 8px; border-bottom: 1px solid #f1f5f9; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge.high    { background: #fee2e2; color: #b91c1c; }
+    .badge.medium  { background: #ffedd5; color: #c2410c; }
+    .badge.low     { background: #fef3c7; color: #a16207; }
+    .badge.info    { background: #dbeafe; color: #1e40af; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 800px) {
+      .charts-row { grid-template-columns: 1fr; }
+      body { padding: 20px 16px; }
+    }
+
+    /* ---- Footer ---- */
+    footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--muted); }
+    footer a { color: var(--primary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    code { font-family: 'SF Mono', Monaco, monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="brand">
+        <h1>MediChain Analytics</h1>
+        <div class="sub">Chain-wide operational dashboard</div>
+      </div>
+      <div class="snapshot">Snapshot · June 2025</div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- KPI CARDS                                                     -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">Overview</div>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value">&#8377;29.77 L</div>
+          <div class="kpi-hint">Paid bills, all-time</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Patients</div>
+          <div class="kpi-value">40</div>
+          <div class="kpi-hint">17 with insurance</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Admissions</div>
+          <div class="kpi-value">35</div>
+          <div class="kpi-hint">5 currently in-hospital</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Doctors on Roll</div>
+          <div class="kpi-value">25</div>
+          <div class="kpi-hint">Across 5 branches</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">30-Day Readmission</div>
+          <div class="kpi-value">13.3%</div>
+          <div class="kpi-hint">Benchmark ~15%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Fraud Alerts</div>
+          <div class="kpi-value danger">4</div>
+          <div class="kpi-hint">Anomalies flagged</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- REVENUE ANALYTICS                                             -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">Revenue Analytics</div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Revenue by Hospital</div>
+          <div class="chart-source">Source: 11_kpi_dashboard.sql · KPI 2</div>
+          <div class="chart-canvas"><canvas id="chartRevenue"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Revenue per Bed (Efficiency)</div>
+          <div class="chart-source">Source: 11_kpi_dashboard.sql · KPI 3</div>
+          <div class="chart-canvas"><canvas id="chartRevPerBed"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- OPERATIONS                                                    -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">Operations</div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Monthly Admissions Trend</div>
+          <div class="chart-source">Source: 08_window_functions.sql · Q12</div>
+          <div class="chart-canvas"><canvas id="chartMonthly"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Top 5 Diagnoses by Revenue</div>
+          <div class="chart-source">Source: 11_kpi_dashboard.sql · KPI 15</div>
+          <div class="chart-canvas"><canvas id="chartDiagnoses"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- QUALITY & COMPLIANCE                                          -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">Quality &amp; Compliance</div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Appointment Outcomes</div>
+          <div class="chart-source">Source: 10_pivot_reporting.sql · Q1</div>
+          <div class="chart-canvas"><canvas id="chartAppt"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Claim Status by Insurer</div>
+          <div class="chart-source">Source: 05_aggregations.sql · Q10</div>
+          <div class="chart-canvas"><canvas id="chartClaims"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FRAUD ALERTS TABLE                                            -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">Fraud &amp; Anomaly Alerts <span style="color:#94a3b8;font-weight:400;font-size:11px;letter-spacing:0;text-transform:none">· Source: 12_fraud_detection.sql</span></div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Details</th>
+              <th style="width:100px">Severity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Over-Prescriber</td>
+              <td>Dr. Vivek Bhat (Bengaluru, Cardiology) — 4.2× the peer average medicine quantity</td>
+              <td><span class="badge high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>Duplicate Admission Bill</td>
+              <td>Admission #20 billed twice (bill IDs #23 &amp; #34)</td>
+              <td><span class="badge medium">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td>Duplicate Claim</td>
+              <td>Bill #4 claimed against two different insurance policies</td>
+              <td><span class="badge high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>Ghost Bill</td>
+              <td>Bill #39 has no linked appointment or admission</td>
+              <td><span class="badge low">LOW</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- HIGH-RISK PATIENTS                                            -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">High-Risk Patients — Top 5 <span style="color:#94a3b8;font-weight:400;font-size:11px;letter-spacing:0;text-transform:none">· Source: 13_readmission_risk_scoring.sql</span></div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Age</th>
+              <th>Chronic</th>
+              <th>Prior Admits</th>
+              <th>Risk Score</th>
+              <th>Tier</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Raghav Iyer</td><td>60</td><td>Yes</td><td>2</td><td>85</td><td><span class="badge high">HIGH</span></td></tr>
+            <tr><td>Karan Malhotra</td><td>65</td><td>Yes</td><td>1</td><td>80</td><td><span class="badge high">HIGH</span></td></tr>
+            <tr><td>Aarav Sharma</td><td>40</td><td>Yes</td><td>3</td><td>75</td><td><span class="badge high">HIGH</span></td></tr>
+            <tr><td>Rohan Desai</td><td>55</td><td>Yes</td><td>0</td><td>55</td><td><span class="badge medium">MEDIUM</span></td></tr>
+            <tr><td>Deepak Kulkarni</td><td>59</td><td>Yes</td><td>0</td><td>45</td><td><span class="badge medium">MEDIUM</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      Data derived from <code>02_seed_data.sql</code> · Charts rendered client-side with
+      <a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a><br />
+      <a href="https://github.com/Sushumna09/medichain-analytics" target="_blank" rel="noopener">
+        github.com/Sushumna09/medichain-analytics
+      </a>
+    </footer>
+  </div>
+
+<script>
+/* ============================================================
+   Data used by every chart.  These numbers are the results the
+   corresponding SQL queries produce against 02_seed_data.sql —
+   they are shown here inline so the dashboard renders without a
+   live database connection.  Update these if you regenerate data.
+   ============================================================ */
+const data = {
+  revenueByHospital: {
+    labels: ['Hyderabad', 'Chennai', 'Delhi', 'Mumbai', 'Bengaluru'],
+    values: [6.95, 6.73, 6.27, 5.47, 4.30]      // ₹ lakhs
+  },
+  revenuePerBed: {
+    labels: ['Chennai', 'Hyderabad', 'Delhi', 'Bengaluru', 'Mumbai'],
+    values: [3365, 2780, 1791, 1433, 1367]       // ₹ per bed
+  },
+  monthlyAdmissions: {
+    labels: ['Feb-24','Mar-24','Apr-24','May-24','Jun-24','Jul-24','Aug-24','Sep-24','Oct-24','Nov-24','Dec-24','Jan-25','Feb-25','Jun-25','Jul-25'],
+    values: [2,4,3,2,3,2,3,1,1,2,3,0,1,3,2]
+  },
+  topDiagnoses: {
+    labels: ['Heart Failure', 'Coronary Artery Dis.', 'Arrhythmia', 'Chest Pain', 'Acute MI'],
+    values: [455000, 217000, 173000, 168000, 100000]
+  },
+  apptOutcomes: {
+    labels: ['Attended', 'No-Show', 'Cancelled'],
+    values: [56, 3, 1]
+  },
+  claimsByInsurer: {
+    labels: ['Star Health', 'HDFC Ergo', 'ICICI Lombard', 'Bajaj Allianz', 'Max Bupa'],
+    approved: [4, 5, 2, 2, 2],
+    rejected: [0, 0, 1, 0, 1],
+    pending:  [1, 0, 0, 1, 0]
+  }
+};
+
+/* Global Chart.js defaults */
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#334155';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.boxWidth = 8;
+
+const gridStyle = { color: '#f1f5f9', drawBorder: false };
+const noGrid   = { grid: { display: false }, border: { display: false } };
+
+/* ---------- Chart 1 · Revenue by hospital ---------- */
+new Chart(document.getElementById('chartRevenue'), {
+  type: 'bar',
+  data: {
+    labels: data.revenueByHospital.labels,
+    datasets: [{
+      label: 'Revenue (₹ Lakhs)',
+      data: data.revenueByHospital.values,
+      backgroundColor: '#0ea5e9',
+      borderRadius: 6,
+      maxBarThickness: 44
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: gridStyle, ticks: { callback: v => '₹' + v + 'L' } },
+      x: noGrid
+    }
+  }
+});
+
+/* ---------- Chart 2 · Revenue per bed ---------- */
+new Chart(document.getElementById('chartRevPerBed'), {
+  type: 'bar',
+  data: {
+    labels: data.revenuePerBed.labels,
+    datasets: [{
+      label: 'Revenue / Bed (₹)',
+      data: data.revenuePerBed.values,
+      backgroundColor: '#22c55e',
+      borderRadius: 6,
+      maxBarThickness: 24
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, grid: gridStyle, ticks: { callback: v => '₹' + (v/1000).toFixed(1) + 'k' } },
+      y: noGrid
+    }
+  }
+});
+
+/* ---------- Chart 3 · Monthly admissions ---------- */
+new Chart(document.getElementById('chartMonthly'), {
+  type: 'line',
+  data: {
+    labels: data.monthlyAdmissions.labels,
+    datasets: [{
+      label: 'Admissions',
+      data: data.monthlyAdmissions.values,
+      borderColor: '#0ea5e9',
+      backgroundColor: 'rgba(14,165,233,0.10)',
+      fill: true,
+      tension: 0.35,
+      pointBackgroundColor: '#0ea5e9',
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: gridStyle },
+      x: noGrid
+    }
+  }
+});
+
+/* ---------- Chart 4 · Top diagnoses ---------- */
+new Chart(document.getElementById('chartDiagnoses'), {
+  type: 'bar',
+  data: {
+    labels: data.topDiagnoses.labels,
+    datasets: [{
+      label: 'Revenue (₹)',
+      data: data.topDiagnoses.values,
+      backgroundColor: '#8b5cf6',
+      borderRadius: 6,
+      maxBarThickness: 24
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, grid: gridStyle, ticks: { callback: v => '₹' + (v/1000).toFixed(0) + 'k' } },
+      y: noGrid
+    }
+  }
+});
+
+/* ---------- Chart 5 · Appointment outcomes ---------- */
+new Chart(document.getElementById('chartAppt'), {
+  type: 'doughnut',
+  data: {
+    labels: data.apptOutcomes.labels,
+    datasets: [{
+      data: data.apptOutcomes.values,
+      backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'right', labels: { padding: 12 } }
+    }
+  }
+});
+
+/* ---------- Chart 6 · Claims by insurer (stacked) ---------- */
+new Chart(document.getElementById('chartClaims'), {
+  type: 'bar',
+  data: {
+    labels: data.claimsByInsurer.labels,
+    datasets: [
+      { label: 'Approved', data: data.claimsByInsurer.approved, backgroundColor: '#22c55e', stack: 's', borderRadius: 3 },
+      { label: 'Rejected', data: data.claimsByInsurer.rejected, backgroundColor: '#ef4444', stack: 's', borderRadius: 3 },
+      { label: 'Pending',  data: data.claimsByInsurer.pending,  backgroundColor: '#f59e0b', stack: 's', borderRadius: 3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', align: 'end' } },
+    scales: {
+      x: { stacked: true, grid: { display: false } },
+      y: { stacked: true, beginAtZero: true, grid: gridStyle, ticks: { stepSize: 1 } }
+    }
+  }
+});
+</script>
+</body>
+</html>
