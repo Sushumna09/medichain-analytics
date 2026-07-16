@@ -45,6 +45,21 @@
       text-transform: uppercase; letter-spacing: 0.1em;
       color: var(--muted); margin-bottom: 14px;
     }
+    .section-title a {
+      color: #94a3b8;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: #cbd5e1;
+      transition: color 0.15s, text-decoration-color 0.15s;
+    }
+    .section-title a:hover {
+      color: var(--primary);
+      text-decoration-color: var(--primary);
+    }
+    .section-title .src-suffix {
+      color: #94a3b8; font-weight: 400; font-size: 11px;
+      letter-spacing: 0; text-transform: none; margin-left: 6px;
+    }
 
     /* ---- KPI cards ---- */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
@@ -74,7 +89,21 @@
       padding: 20px 22px 12px;
     }
     .chart-title { font-size: 14px; font-weight: 600; }
-    .chart-source { font-size: 11px; color: #94a3b8; margin-top: 2px; margin-bottom: 14px; }
+    .chart-source {
+      font-size: 11px; color: #94a3b8;
+      margin-top: 2px; margin-bottom: 14px;
+    }
+    .chart-source a {
+      color: #64748b;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-color: #cbd5e1;
+      transition: color 0.15s, text-decoration-color 0.15s;
+    }
+    .chart-source a:hover {
+      color: var(--primary);
+      text-decoration-color: var(--primary);
+    }
     .chart-canvas { position: relative; height: 260px; }
 
     /* ---- Table ---- */
@@ -123,9 +152,9 @@
     <header>
       <div class="brand">
         <h1>MediChain Analytics</h1>
-        <div class="sub">Chain-wide operational dashboard</div>
+        <div class="sub">Chain-wide operational dashboard &middot; click any <em>Source</em> link to jump to the SQL that produced the chart</div>
       </div>
-      <div class="snapshot">Snapshot · June 2025</div>
+      <div class="snapshot">Snapshot &middot; June 2025</div>
     </header>
 
     <!-- ============================================================ -->
@@ -175,12 +204,20 @@
       <div class="charts-row">
         <div class="chart-card">
           <div class="chart-title">Revenue by Hospital</div>
-          <div class="chart-source">Source: 11_kpi_dashboard.sql · KPI 2</div>
+          <div class="chart-source">
+            Source:
+            <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/11_kpi_dashboard.sql" target="_blank" rel="noopener">11_kpi_dashboard.sql</a>
+            &middot; KPI 2
+          </div>
           <div class="chart-canvas"><canvas id="chartRevenue"></canvas></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">Revenue per Bed (Efficiency)</div>
-          <div class="chart-source">Source: 11_kpi_dashboard.sql · KPI 3</div>
+          <div class="chart-source">
+            Source:
+            <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/11_kpi_dashboard.sql" target="_blank" rel="noopener">11_kpi_dashboard.sql</a>
+            &middot; KPI 3
+          </div>
           <div class="chart-canvas"><canvas id="chartRevPerBed"></canvas></div>
         </div>
       </div>
@@ -194,12 +231,20 @@
       <div class="charts-row">
         <div class="chart-card">
           <div class="chart-title">Monthly Admissions Trend</div>
-          <div class="chart-source">Source: 08_window_functions.sql · Q12</div>
+          <div class="chart-source">
+            Source:
+            <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/08_window_functions.sql" target="_blank" rel="noopener">08_window_functions.sql</a>
+            &middot; Q12
+          </div>
           <div class="chart-canvas"><canvas id="chartMonthly"></canvas></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">Top 5 Diagnoses by Revenue</div>
-          <div class="chart-source">Source: 11_kpi_dashboard.sql · KPI 15</div>
+          <div class="chart-source">
+            Source:
+            <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/11_kpi_dashboard.sql" target="_blank" rel="noopener">11_kpi_dashboard.sql</a>
+            &middot; KPI 15
+          </div>
           <div class="chart-canvas"><canvas id="chartDiagnoses"></canvas></div>
         </div>
       </div>
@@ -213,12 +258,20 @@
       <div class="charts-row">
         <div class="chart-card">
           <div class="chart-title">Appointment Outcomes</div>
-          <div class="chart-source">Source: 10_pivot_reporting.sql · Q1</div>
+          <div class="chart-source">
+            Source:
+            <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/10_pivot_reporting.sql" target="_blank" rel="noopener">10_pivot_reporting.sql</a>
+            &middot; Q1
+          </div>
           <div class="chart-canvas"><canvas id="chartAppt"></canvas></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">Claim Status by Insurer</div>
-          <div class="chart-source">Source: 05_aggregations.sql · Q10</div>
+          <div class="chart-source">
+            Source:
+            <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/05_aggregations.sql" target="_blank" rel="noopener">05_aggregations.sql</a>
+            &middot; Q10
+          </div>
           <div class="chart-canvas"><canvas id="chartClaims"></canvas></div>
         </div>
       </div>
@@ -228,7 +281,12 @@
     <!-- FRAUD ALERTS TABLE                                            -->
     <!-- ============================================================ -->
     <div class="section">
-      <div class="section-title">Fraud &amp; Anomaly Alerts <span style="color:#94a3b8;font-weight:400;font-size:11px;letter-spacing:0;text-transform:none">· Source: 12_fraud_detection.sql</span></div>
+      <div class="section-title">
+        Fraud &amp; Anomaly Alerts
+        <span class="src-suffix">&middot; Source:
+          <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/12_fraud_detection.sql" target="_blank" rel="noopener">12_fraud_detection.sql</a>
+        </span>
+      </div>
       <div class="table-card">
         <table>
           <thead>
@@ -241,7 +299,7 @@
           <tbody>
             <tr>
               <td>Over-Prescriber</td>
-              <td>Dr. Vivek Bhat (Bengaluru, Cardiology) — 4.2× the peer average medicine quantity</td>
+              <td>Dr. Vivek Bhat (Bengaluru, Cardiology) &mdash; 4.2&times; the peer average medicine quantity</td>
               <td><span class="badge high">HIGH</span></td>
             </tr>
             <tr>
@@ -268,7 +326,12 @@
     <!-- HIGH-RISK PATIENTS                                            -->
     <!-- ============================================================ -->
     <div class="section">
-      <div class="section-title">High-Risk Patients — Top 5 <span style="color:#94a3b8;font-weight:400;font-size:11px;letter-spacing:0;text-transform:none">· Source: 13_readmission_risk_scoring.sql</span></div>
+      <div class="section-title">
+        High-Risk Patients &mdash; Top 5
+        <span class="src-suffix">&middot; Source:
+          <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/13_readmission_risk_scoring.sql" target="_blank" rel="noopener">13_readmission_risk_scoring.sql</a>
+        </span>
+      </div>
       <div class="table-card">
         <table>
           <thead>
@@ -293,7 +356,7 @@
     </div>
 
     <footer>
-      Data derived from <code>02_seed_data.sql</code> · Charts rendered client-side with
+      Data derived from <a href="https://github.com/Sushumna09/medichain-analytics/blob/main/02_seed_data.sql" target="_blank" rel="noopener"><code>02_seed_data.sql</code></a> &middot; Charts rendered client-side with
       <a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a><br />
       <a href="https://github.com/Sushumna09/medichain-analytics" target="_blank" rel="noopener">
         github.com/Sushumna09/medichain-analytics
@@ -304,18 +367,16 @@
 <script>
 /* ============================================================
    Data used by every chart.  These numbers are the results the
-   corresponding SQL queries produce against 02_seed_data.sql —
-   they are shown here inline so the dashboard renders without a
-   live database connection.  Update these if you regenerate data.
+   corresponding SQL queries produce against 02_seed_data.sql.
    ============================================================ */
 const data = {
   revenueByHospital: {
     labels: ['Hyderabad', 'Chennai', 'Delhi', 'Mumbai', 'Bengaluru'],
-    values: [6.95, 6.73, 6.27, 5.47, 4.30]      // ₹ lakhs
+    values: [6.95, 6.73, 6.27, 5.47, 4.30]
   },
   revenuePerBed: {
     labels: ['Chennai', 'Hyderabad', 'Delhi', 'Bengaluru', 'Mumbai'],
-    values: [3365, 2780, 1791, 1433, 1367]       // ₹ per bed
+    values: [3365, 2780, 1791, 1433, 1367]
   },
   monthlyAdmissions: {
     labels: ['Feb-24','Mar-24','Apr-24','May-24','Jun-24','Jul-24','Aug-24','Sep-24','Oct-24','Nov-24','Dec-24','Jan-25','Feb-25','Jun-25','Jul-25'],
@@ -337,7 +398,6 @@ const data = {
   }
 };
 
-/* Global Chart.js defaults */
 Chart.defaults.font.family = "'Inter', sans-serif";
 Chart.defaults.font.size = 12;
 Chart.defaults.color = '#334155';
@@ -347,7 +407,7 @@ Chart.defaults.plugins.legend.labels.boxWidth = 8;
 const gridStyle = { color: '#f1f5f9', drawBorder: false };
 const noGrid   = { grid: { display: false }, border: { display: false } };
 
-/* ---------- Chart 1 · Revenue by hospital ---------- */
+/* Chart 1 · Revenue by hospital */
 new Chart(document.getElementById('chartRevenue'), {
   type: 'bar',
   data: {
@@ -356,8 +416,7 @@ new Chart(document.getElementById('chartRevenue'), {
       label: 'Revenue (₹ Lakhs)',
       data: data.revenueByHospital.values,
       backgroundColor: '#0ea5e9',
-      borderRadius: 6,
-      maxBarThickness: 44
+      borderRadius: 6, maxBarThickness: 44
     }]
   },
   options: {
@@ -370,7 +429,7 @@ new Chart(document.getElementById('chartRevenue'), {
   }
 });
 
-/* ---------- Chart 2 · Revenue per bed ---------- */
+/* Chart 2 · Revenue per bed */
 new Chart(document.getElementById('chartRevPerBed'), {
   type: 'bar',
   data: {
@@ -379,8 +438,7 @@ new Chart(document.getElementById('chartRevPerBed'), {
       label: 'Revenue / Bed (₹)',
       data: data.revenuePerBed.values,
       backgroundColor: '#22c55e',
-      borderRadius: 6,
-      maxBarThickness: 24
+      borderRadius: 6, maxBarThickness: 24
     }]
   },
   options: {
@@ -393,7 +451,7 @@ new Chart(document.getElementById('chartRevPerBed'), {
   }
 });
 
-/* ---------- Chart 3 · Monthly admissions ---------- */
+/* Chart 3 · Monthly admissions */
 new Chart(document.getElementById('chartMonthly'), {
   type: 'line',
   data: {
@@ -403,25 +461,19 @@ new Chart(document.getElementById('chartMonthly'), {
       data: data.monthlyAdmissions.values,
       borderColor: '#0ea5e9',
       backgroundColor: 'rgba(14,165,233,0.10)',
-      fill: true,
-      tension: 0.35,
+      fill: true, tension: 0.35,
       pointBackgroundColor: '#0ea5e9',
-      pointRadius: 3,
-      pointHoverRadius: 5,
-      borderWidth: 2
+      pointRadius: 3, pointHoverRadius: 5, borderWidth: 2
     }]
   },
   options: {
     responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: false } },
-    scales: {
-      y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: gridStyle },
-      x: noGrid
-    }
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: gridStyle }, x: noGrid }
   }
 });
 
-/* ---------- Chart 4 · Top diagnoses ---------- */
+/* Chart 4 · Top diagnoses */
 new Chart(document.getElementById('chartDiagnoses'), {
   type: 'bar',
   data: {
@@ -430,8 +482,7 @@ new Chart(document.getElementById('chartDiagnoses'), {
       label: 'Revenue (₹)',
       data: data.topDiagnoses.values,
       backgroundColor: '#8b5cf6',
-      borderRadius: 6,
-      maxBarThickness: 24
+      borderRadius: 6, maxBarThickness: 24
     }]
   },
   options: {
@@ -444,7 +495,7 @@ new Chart(document.getElementById('chartDiagnoses'), {
   }
 });
 
-/* ---------- Chart 5 · Appointment outcomes ---------- */
+/* Chart 5 · Appointment outcomes */
 new Chart(document.getElementById('chartAppt'), {
   type: 'doughnut',
   data: {
@@ -458,13 +509,11 @@ new Chart(document.getElementById('chartAppt'), {
   options: {
     responsive: true, maintainAspectRatio: false,
     cutout: '65%',
-    plugins: {
-      legend: { position: 'right', labels: { padding: 12 } }
-    }
+    plugins: { legend: { position: 'right', labels: { padding: 12 } } }
   }
 });
 
-/* ---------- Chart 6 · Claims by insurer (stacked) ---------- */
+/* Chart 6 · Claims by insurer (stacked) */
 new Chart(document.getElementById('chartClaims'), {
   type: 'bar',
   data: {
